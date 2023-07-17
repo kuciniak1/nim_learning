@@ -10,9 +10,10 @@ if (paramCount() != 1):
     echo &"(-) Usage: {paramStr(0)} <PID>"
     quit(1)
 
-var closed:WINBOOL
+var close_handle_status:WINBOOL
 var pid:int  
 var process:HANDLE
+var terminate_process_status:WINBOOL
 
 pid = paramStr(1).parseInt()
 
@@ -34,16 +35,24 @@ if (process == 0):
 
 echo &"(+) Process opened sucessfully, handle: {process}, PID: {GetProcessId(process)}, priority: {GetPriorityClass(process)}"
 
-echo &"(?) Closing the process with PID = {pid}..."
+echo &"(?) Terminating the process with PID = {pid}..."
 
-closed = TerminateProcess(process, 0)
+terminate_process_status = TerminateProcess(process, 0)
 
-if (closed == 0):
-    echo &"(-) Failed to close the process, error code: {GetLastError()}"
+if (terminate_process_status == 0):
+    echo &"(-) Failed to terminate the process, error code: {GetLastError()}"
     quit(1)
 
-CloseHandle(process)
-
 echo &"(+) Process closed sucessfully"
+
+echo &"(?) Closing the process handle..."
+
+close_handle_status = CloseHandle(process)
+
+if (close_handle_status == 0):
+    echo &"(-) Failed to close the process handle, error code: {GetLastError()}"
+    quit(1)
+
+echo &"(+) Handle closed sucessfully"
 
 quit(0)
